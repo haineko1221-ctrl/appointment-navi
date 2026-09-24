@@ -19,6 +19,16 @@ export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<PersonCategory | 'all'>('all');
   const [contactFormPersonId, setContactFormPersonId] = useState<string | null>(null);
   const [contactNote, setContactNote] = useState('');
+  const [contactDate, setContactDate] = useState('');
+
+  // 今日の日付を YYYY-MM-DD フォーマットで取得
+  const getTodayString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const loadReminders = () => {
     const allPeople = getAllPeople();
@@ -36,25 +46,29 @@ export default function Dashboard() {
 
   const handleContactClick = (personId: string) => {
     setContactFormPersonId(personId);
+    setContactDate(getTodayString());
   };
 
   const handleContactSubmit = () => {
     if (!contactFormPersonId) return;
 
+    const selectedDate = new Date(contactDate);
     saveContact({
       id: uuidv4(),
       personId: contactFormPersonId,
-      contactDate: new Date(),
+      contactDate: selectedDate,
       note: contactNote.trim() || undefined,
       createdAt: new Date(),
     });
     setContactNote('');
+    setContactDate('');
     setContactFormPersonId(null);
     loadReminders();
   };
 
   const handleContactCancel = () => {
     setContactNote('');
+    setContactDate('');
     setContactFormPersonId(null);
   };
 
@@ -151,7 +165,7 @@ export default function Dashboard() {
                           {reminder.person.name}
                         </h3>
                         <p className="text-sm text-gray-600 mb-2">
-                          設定間隔: {reminder.person.followInterval}日ごと
+                          設定間隔: {reminder.person.followInterval ? `${reminder.person.followInterval}日ごと` : 'リマインドなし'}
                         </p>
                         {reminder.lastContact ? (
                           <p className="text-sm text-gray-600">
@@ -195,7 +209,7 @@ export default function Dashboard() {
                           {reminder.person.name}
                         </h3>
                         <p className="text-sm text-gray-600 mb-2">
-                          設定間隔: {reminder.person.followInterval}日ごと
+                          設定間隔: {reminder.person.followInterval ? `${reminder.person.followInterval}日ごと` : 'リマインドなし'}
                         </p>
                         {reminder.lastContact ? (
                           <p className="text-sm text-gray-600">
@@ -286,7 +300,7 @@ export default function Dashboard() {
                           </div>
 
                           <p className="text-sm text-gray-600 mb-2">
-                            設定間隔: {item.person.followInterval}日ごと
+                            設定間隔: {item.person.followInterval ? `${item.person.followInterval}日ごと` : 'リマインドなし'}
                           </p>
 
                           {!isContact && item.reminder?.lastContact && (
@@ -383,6 +397,22 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  接触日
+                </label>
+                <input
+                  type="date"
+                  value={contactDate}
+                  onChange={(e) => setContactDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  実際に接触した日（昨日なども選択可能）
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   アクション内容
                 </label>
                 <input
@@ -391,7 +421,6 @@ export default function Dashboard() {
                   onChange={(e) => setContactNote(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="例: 電話で連絡、LINEでメッセージ、実際に面談"
-                  autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleContactSubmit();

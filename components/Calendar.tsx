@@ -89,8 +89,8 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
     people.forEach((person) => {
       const reminder = calculateReminder(person);
 
-      // 次回推奨日をチェック
-      if (isSameDay(reminder.nextRecommendedDate, date)) {
+      // 次回推奨日をチェック（リマインダーがある場合のみ）
+      if (reminder && isSameDay(reminder.nextRecommendedDate, date)) {
         items.push({
           person,
           date: reminder.nextRecommendedDate,
@@ -244,7 +244,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
 
                   const tooltipText = isContact
                     ? `${item.person.name} - 接触完了: ${formatDate(item.contact!.contactDate)}${item.contact!.note ? `\n${item.contact!.note}` : ''}`
-                    : `${item.person.name} - ${item.person.followInterval}日ごと${item.isOverdue ? ` (${item.reminder!.daysOverdue}日遅れ)` : ''}`;
+                    : `${item.person.name}${item.person.followInterval ? ` - ${item.person.followInterval}日ごと` : ''}${item.isOverdue ? ` (${item.reminder!.daysOverdue}日遅れ)` : ''}`;
 
                   return (
                     <div

@@ -18,6 +18,16 @@ export default function PersonDetailPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactNote, setContactNote] = useState('');
+  const [contactDate, setContactDate] = useState('');
+
+  // 今日の日付を YYYY-MM-DD フォーマットで取得
+  const getTodayString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const loadData = () => {
     const loadedPerson = getPersonById(personId);
@@ -37,24 +47,28 @@ export default function PersonDetailPage() {
   }, [personId]);
 
   const handleContactClick = () => {
+    setContactDate(getTodayString());
     setShowContactForm(true);
   };
 
   const handleContactSubmit = () => {
+    const selectedDate = new Date(contactDate);
     saveContact({
       id: uuidv4(),
       personId,
-      contactDate: new Date(),
+      contactDate: selectedDate,
       note: contactNote.trim() || undefined,
       createdAt: new Date(),
     });
     setContactNote('');
+    setContactDate('');
     setShowContactForm(false);
     loadData();
   };
 
   const handleContactCancel = () => {
     setContactNote('');
+    setContactDate('');
     setShowContactForm(false);
   };
 
@@ -92,7 +106,9 @@ export default function PersonDetailPage() {
           </div>
           <div>
             <p className="text-gray-600">フォロー間隔</p>
-            <p className="font-semibold">{person.followInterval}日ごと</p>
+            <p className="font-semibold">
+              {person.followInterval ? `${person.followInterval}日ごと` : 'リマインドなし'}
+            </p>
           </div>
           {person.memo && (
             <div className="col-span-2">
@@ -152,6 +168,21 @@ export default function PersonDetailPage() {
                   <div className="space-y-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        接触日
+                      </label>
+                      <input
+                        type="date"
+                        value={contactDate}
+                        onChange={(e) => setContactDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        実際に接触した日（昨日なども選択可能）
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         アクション内容
                       </label>
                       <input
@@ -160,7 +191,6 @@ export default function PersonDetailPage() {
                         onChange={(e) => setContactNote(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="例: 電話で連絡、LINEでメッセージ、実際に面談"
-                        autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             handleContactSubmit();

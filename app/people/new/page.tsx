@@ -23,13 +23,13 @@ export default function NewPersonPage() {
   const [formData, setFormData] = useState<{
     name: string;
     category: PersonCategory;
-    followInterval: number;
+    followInterval: string;
     memo: string;
     initialContactDate: string;
   }>({
     name: '',
     category: 'follow',
-    followInterval: 7,
+    followInterval: '7',
     memo: '',
     initialContactDate: getTodayString(),
   });
@@ -37,8 +37,17 @@ export default function NewPersonPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || formData.followInterval < 1) {
-      alert('名前とフォロー間隔を入力してください');
+    if (!formData.name) {
+      alert('名前を入力してください');
+      return;
+    }
+
+    const followIntervalValue = formData.followInterval.trim() === ''
+      ? null
+      : parseInt(formData.followInterval);
+
+    if (followIntervalValue !== null && followIntervalValue < 1) {
+      alert('フォロー間隔は1日以上で入力してください');
       return;
     }
 
@@ -47,7 +56,7 @@ export default function NewPersonPage() {
       id: personId,
       name: formData.name,
       category: formData.category,
-      followInterval: formData.followInterval,
+      followInterval: followIntervalValue,
       memo: formData.memo,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -109,20 +118,19 @@ export default function NewPersonPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              フォロー間隔（日数） <span className="text-red-500">*</span>
+              フォロー間隔（日数）
             </label>
             <input
-              type="number"
+              type="text"
               value={formData.followInterval}
               onChange={(e) =>
-                setFormData({ ...formData, followInterval: parseInt(e.target.value) })
+                setFormData({ ...formData, followInterval: e.target.value })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              min="1"
-              required
+              placeholder="未入力の場合リマインドなし"
             />
             <p className="text-xs text-gray-500 mt-1">
-              例: 3日ごとに連絡する場合は「3」と入力
+              例: 3日ごとに連絡する場合は「3」と入力。空欄の場合はリマインド通知なし
             </p>
           </div>
 

@@ -25,7 +25,7 @@ export type Person = {
   id: string;
   name: string;
   category: PersonCategory; // カテゴリー
-  followInterval: number; // フォロー間隔（日数）
+  followInterval: number | null; // フォロー間隔（日数）nullの場合はリマインドなし
   memo?: string; // 個人情報メモ
   createdAt: Date;
   updatedAt: Date;

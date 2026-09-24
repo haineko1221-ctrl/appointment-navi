@@ -34,7 +34,12 @@ export function formatDate(date: Date): string {
 // リマインド計算
 // ===================================
 
-export function calculateReminder(person: Person): Reminder {
+export function calculateReminder(person: Person): Reminder | null {
+  // フォロー間隔が設定されていない場合はリマインダーなし
+  if (person.followInterval === null) {
+    return null;
+  }
+
   const lastContact = getLastContact(person.id);
   const today = getToday();
 
@@ -67,7 +72,9 @@ export function calculateReminder(person: Person): Reminder {
 }
 
 export function getAllReminders(people: Person[]): Reminder[] {
-  return people.map(calculateReminder)
+  return people
+    .map(calculateReminder)
+    .filter((reminder): reminder is Reminder => reminder !== null)
     .sort((a, b) => {
       // 遅延しているものを優先
       if (a.isOverdue && !b.isOverdue) return -1;
