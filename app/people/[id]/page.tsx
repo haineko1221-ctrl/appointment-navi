@@ -120,32 +120,42 @@ export default function PersonDetailPage() {
       </Card>
 
       <Card title="🔔 リマインド状況">
-        <div className={`rounded-lg p-4 ${
-          reminder.isOverdue
-            ? 'bg-red-50 border border-red-200'
-            : 'bg-blue-50 border border-blue-200'
-        }`}>
-          {reminder.lastContact ? (
-            <>
-              <p className="text-sm text-gray-600 mb-2">
-                最終接触: {formatDate(reminder.lastContact.contactDate)}
-                　（{reminder.daysElapsed}日経過）
-              </p>
-              <p className={`text-sm font-semibold ${
-                reminder.isOverdue ? 'text-red-600' : 'text-blue-600'
-              }`}>
-                {reminder.isOverdue
-                  ? `🔴 ${reminder.daysOverdue}日遅れています`
-                  : `次回推奨: ${formatDate(reminder.nextRecommendedDate)}`
-                }
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-gray-600">
-              まだ接触履歴がありません
+        {!reminder ? (
+          <div className="rounded-lg p-4 bg-gray-50 border border-gray-200">
+            <p className="text-sm text-gray-600 mb-4">
+              この人物はリマインド設定がありません（スケジュール帳モード）
             </p>
-          )}
-          <div className="mt-4">
+          </div>
+        ) : (
+          <div className={`rounded-lg p-4 ${
+            reminder.isOverdue
+              ? 'bg-red-50 border border-red-200'
+              : 'bg-blue-50 border border-blue-200'
+          }`}>
+            {reminder.lastContact ? (
+              <>
+                <p className="text-sm text-gray-600 mb-2">
+                  最終接触: {formatDate(reminder.lastContact.contactDate)}
+                  　（{reminder.daysElapsed}日経過）
+                </p>
+                <p className={`text-sm font-semibold ${
+                  reminder.isOverdue ? 'text-red-600' : 'text-blue-600'
+                }`}>
+                  {reminder.isOverdue
+                    ? `🔴 ${reminder.daysOverdue}日遅れています`
+                    : `次回推奨: ${formatDate(reminder.nextRecommendedDate)}`
+                  }
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-600">
+                まだ接触履歴がありません
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="mt-4">
             {(() => {
               const today = new Date();
               today.setHours(0, 0, 0, 0);
