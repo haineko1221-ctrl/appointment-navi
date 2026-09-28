@@ -249,7 +249,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                   return (
                     <div
                       key={`${item.person.id}-${item.type}-${idx}`}
-                      className={`text-xs px-1 py-0.5 rounded border-l-2 ${colorClass} ${isContact ? 'line-through' : ''}`}
+                      className={`text-xs px-1 py-0.5 rounded border-l-2 ${colorClass}`}
                       title={tooltipText}
                     >
                       <div className="truncate">

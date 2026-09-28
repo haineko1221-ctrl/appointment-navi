@@ -1,38 +1,43 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useState, FormEvent } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { Person, PersonCategory, CATEGORY_LABELS } from '@/types';
-import { savePerson, saveContact } from '@/lib/storage';
+import { getPersonById, savePerson } from '@/lib/storage';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 
-export default function NewPersonPage() {
+export default function EditPersonPage() {
   const router = useRouter();
-
-  // 今日の日付を YYYY-MM-DD フォーマットで取得
-  const getTodayString = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const params = useParams();
+  const personId = params.id as string;
 
   const [formData, setFormData] = useState<{
     name: string;
     category: PersonCategory;
     followInterval: string;
     memo: string;
-    initialContactDate: string;
   }>({
     name: '',
     category: 'follow',
     followInterval: '0',
     memo: '',
-    initialContactDate: getTodayString(),
   });
+
+  useEffect(() => {
+    const person = getPersonById(personId);
+    if (!person) {
+      router.push('/people');
+      return;
+    }
+
+    setFormData({
+      name: person.name,
+      category: person.category,
+      followInterval: person.followInterval?.toString() || '0',
+      memo: person.memo || '',
+    });
+  }, [personId, router]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -51,34 +56,28 @@ export default function NewPersonPage() {
       return;
     }
 
-    const personId = uuidv4();
-    const person: Person = {
-      id: personId,
+    const person = getPersonById(personId);
+    if (!person) {
+      alert('人物が見つかりません');
+      return;
+    }
+
+    const updatedPerson: Person = {
+      ...person,
       name: formData.name,
       category: formData.category,
       followInterval: followIntervalValue,
       memo: formData.memo,
-      createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    savePerson(person);
-
-    // 初回接触日を履歴として保存
-    const contactDate = new Date(formData.initialContactDate);
-    saveContact({
-      id: uuidv4(),
-      personId: personId,
-      contactDate: contactDate,
-      createdAt: new Date(),
-    });
-
-    router.push('/people');
+    savePerson(updatedPerson);
+    router.push(`/people/${personId}`);
   };
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Card title="👤 人物登録">
+      <Card title="✏️ 人物情報編集">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -137,24 +136,6 @@ export default function NewPersonPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              初回接触日 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={formData.initialContactDate}
-              onChange={(e) =>
-                setFormData({ ...formData, initialContactDate: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              最初に接触した日（過去の日付も設定可能）
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
               個人情報メモ
             </label>
             <textarea
@@ -170,7 +151,7 @@ export default function NewPersonPage() {
 
           <div className="flex gap-4">
             <Button type="submit" variant="primary" className="flex-1">
-              登録
+              保存
             </Button>
             <Button
               type="button"

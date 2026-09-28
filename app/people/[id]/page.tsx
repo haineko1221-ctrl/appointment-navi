@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Person, Contact } from '@/types';
 import { getPersonById, getContactsByPersonId, saveContact, deleteContact } from '@/lib/storage';
@@ -91,9 +92,16 @@ export default function PersonDetailPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">{person.name}</h1>
-        <Button variant="secondary" onClick={() => router.back()}>
-          戻る
-        </Button>
+        <div className="flex gap-2">
+          <Link href={`/people/${person.id}/edit`}>
+            <Button variant="primary">
+              編集
+            </Button>
+          </Link>
+          <Button variant="secondary" onClick={() => router.back()}>
+            戻る
+          </Button>
+        </div>
       </div>
 
       <Card title="📋 基本情報">
