@@ -231,13 +231,13 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                 {items.slice(0, 3).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
-                  // 接触完了はグレーアウト
+                  // 接触完了はグレーアウト（背景のみ、文字は通常色）
                   const colorClass = isContact
-                    ? 'bg-gray-100 border-gray-300 text-gray-500 opacity-60'
+                    ? 'bg-gray-200 border-gray-400 text-gray-900'
                     : getPersonColor(item.person.id);
 
                   const statusIcon = isContact
-                    ? '✓'
+                    ? '✅'
                     : item.isOverdue
                     ? '🔴'
                     : '🔵';

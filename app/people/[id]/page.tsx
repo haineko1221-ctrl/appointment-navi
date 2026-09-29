@@ -238,7 +238,6 @@ export default function PersonDetailPage() {
               );
             })()}
           </div>
-        </div>
       </Card>
 
       <Card title="📝 接触履歴">

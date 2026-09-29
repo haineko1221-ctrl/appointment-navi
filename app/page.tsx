@@ -290,7 +290,9 @@ export default function Dashboard() {
                               {isContact ? '✓' : item.isOverdue ? '🔴' : '🔵'}
                             </span>
                             <h3 className={`text-lg font-bold ${isContact ? 'text-gray-600' : 'text-gray-900'}`}>
-                              {item.person.name}
+                              <Link href={`/people/${item.person.id}/edit`} className="hover:text-blue-600">
+                                {item.person.name}
+                              </Link>
                             </h3>
                             {isContact && (
                               <span className="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded">
@@ -340,7 +342,7 @@ export default function Dashboard() {
                           )}
                         </div>
 
-                        <div>
+                        <div className="flex gap-2">
                           {isContact ? (
                             <Button
                               variant="secondary"
@@ -361,6 +363,11 @@ export default function Dashboard() {
                               接触完了
                             </Button>
                           )}
+                          <Link href={`/people/${item.person.id}/edit`}>
+                            <Button variant="secondary" size="sm">
+                              編集
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
