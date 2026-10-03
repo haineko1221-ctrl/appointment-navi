@@ -6,22 +6,24 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-blue-600">
+            <Link href="/" className="text-base sm:text-xl font-bold text-blue-600 whitespace-nowrap">
               📅 アポイントナビ
             </Link>
           </div>
-          <div className="flex space-x-8">
+          <div className="flex space-x-2 sm:space-x-8">
             <Link
               href="/"
-              className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent"
+              className="inline-flex items-center px-1 pt-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent"
             >
-              ダッシュボード
+              <span className="hidden sm:inline">ダッシュボード</span>
+              <span className="sm:hidden">🏠</span>
             </Link>
             <Link
               href="/people"
-              className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent"
+              className="inline-flex items-center px-1 pt-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent"
             >
-              👥 人物一覧
+              <span className="hidden sm:inline">👥 人物一覧</span>
+              <span className="sm:hidden">👥</span>
             </Link>
           </div>
         </div>

@@ -37,8 +37,13 @@ export default function NewPersonPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name) {
+    if (!formData.name.trim()) {
       alert('名前を入力してください');
+      return;
+    }
+
+    if (!formData.initialContactDate) {
+      alert('初回接触日を入力してください');
       return;
     }
 

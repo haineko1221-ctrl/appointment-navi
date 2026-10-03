@@ -197,10 +197,10 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       </div>
 
       {/* カレンダー本体 */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-0">
         {calendarDays.map((date, index) => {
           if (!date) {
-            return <div key={`empty-${index}`} className="h-24 bg-gray-50 rounded" />;
+            return <div key={`empty-${index}`} className="h-32 sm:h-24 bg-gray-50" />;
           }
 
           const items = getItemsForDate(date);
@@ -211,7 +211,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
             <div
               key={index}
               onClick={() => onDateClick && onDateClick(date, reminders, items)}
-              className={`h-24 border-2 rounded-lg p-2 cursor-pointer transition hover:shadow-md ${
+              className={`h-32 sm:h-24 border-2 rounded-lg p-1 sm:p-2 cursor-pointer transition hover:shadow-md ${
                 isToday
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 bg-white hover:bg-gray-50'
@@ -227,7 +227,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
               </div>
 
               {/* リマインド・接触履歴表示 */}
-              <div className="space-y-1 overflow-y-auto max-h-14">
+              <div className="space-y-1 overflow-y-auto max-h-20 sm:max-h-14">
                 {items.slice(0, 3).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
@@ -249,14 +249,14 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                   return (
                     <div
                       key={`${item.person.id}-${item.type}-${idx}`}
-                      className={`text-xs px-1 py-0.5 rounded border-l-2 ${colorClass}`}
+                      className={`text-[10px] sm:text-xs px-1 py-0.5 rounded border-l-2 ${colorClass}`}
                       title={tooltipText}
                     >
                       <div className="truncate">
-                        {statusIcon} {item.person.name.slice(0, 4)}
+                        {statusIcon} {item.person.name.slice(0, 6)}
                         {isContact && item.contact?.note && (
-                          <span className="ml-1 text-[10px]">
-                            {item.contact.note.slice(0, 6)}
+                          <span className="ml-1 text-[9px] sm:text-[10px]">
+                            {item.contact.note.slice(0, 8)}
                           </span>
                         )}
                       </div>
