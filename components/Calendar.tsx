@@ -269,11 +269,11 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-pink-100 border-l-2 border-pink-400 rounded"></div>
-          <span>フォロー完了</span>
+          <span>フォロー</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-cyan-100 border-l-2 border-cyan-400 rounded"></div>
-          <span>アポ完了</span>
+          <span>アポイント</span>
         </div>
       </div>
     </div>
