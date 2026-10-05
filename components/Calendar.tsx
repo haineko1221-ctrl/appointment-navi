@@ -224,8 +224,10 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                 {items.slice(0, 4).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
-                  // カテゴリーで色分け（接触完了も同じ色）
-                  const colorClass = getCategoryColor(item.person.category);
+                  // リマインドは黄色、接触完了はカテゴリー色
+                  const colorClass = isContact
+                    ? getCategoryColor(item.person.category)
+                    : 'bg-yellow-100 border-yellow-400 text-yellow-900';
 
                   const tooltipText = isContact
                     ? `${item.person.name} - 接触完了: ${formatDate(item.contact!.contactDate)}${item.contact!.note ? `\n${item.contact!.note}` : ''}`
@@ -262,12 +264,16 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       {/* 凡例 */}
       <div className="mt-4 flex flex-wrap gap-3 text-xs sm:text-sm">
         <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-yellow-100 border-l-2 border-yellow-400 rounded"></div>
+          <span>予定</span>
+        </div>
+        <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-pink-100 border-l-2 border-pink-400 rounded"></div>
-          <span>フォロー</span>
+          <span>フォロー完了</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-cyan-100 border-l-2 border-cyan-400 rounded"></div>
-          <span>アポイント</span>
+          <span>アポ完了</span>
         </div>
       </div>
     </div>
