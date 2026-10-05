@@ -183,11 +183,11 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       </div>
 
       {/* 曜日ヘッダー */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-0 mb-1">
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`text-center font-bold py-2 ${
+            className={`text-center text-xs sm:text-sm font-bold py-1 border-b border-gray-200 ${
               index === 0 ? 'text-red-600' : index === 6 ? 'text-blue-600' : 'text-gray-700'
             }`}
           >
@@ -200,7 +200,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       <div className="grid grid-cols-7 gap-0">
         {calendarDays.map((date, index) => {
           if (!date) {
-            return <div key={`empty-${index}`} className="h-32 sm:h-24 bg-gray-50" />;
+            return <div key={`empty-${index}`} className="h-20 sm:h-24 bg-gray-50 border border-gray-200" />;
           }
 
           const items = getItemsForDate(date);
@@ -211,24 +211,24 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
             <div
               key={index}
               onClick={() => onDateClick && onDateClick(date, reminders, items)}
-              className={`h-32 sm:h-24 border-2 rounded-lg p-1 sm:p-2 cursor-pointer transition hover:shadow-md ${
+              className={`h-20 sm:h-24 border border-gray-200 p-0.5 cursor-pointer transition hover:bg-gray-50 ${
                 isToday
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white hover:bg-gray-50'
+                  ? 'bg-blue-50'
+                  : 'bg-white'
               }`}
             >
               {/* 日付 */}
               <div
-                className={`text-sm font-semibold mb-1 ${
-                  isToday ? 'text-blue-600' : 'text-gray-700'
+                className={`text-xs text-right pr-1 mb-0.5 ${
+                  isToday ? 'text-blue-600 font-bold' : 'text-gray-600'
                 }`}
               >
                 {date.getDate()}
               </div>
 
               {/* リマインド・接触履歴表示 */}
-              <div className="space-y-1 overflow-y-auto max-h-20 sm:max-h-14">
-                {items.slice(0, 3).map((item, idx) => {
+              <div className="space-y-0.5 overflow-y-auto max-h-[68px] sm:max-h-[80px] px-0.5">
+                {items.slice(0, 4).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
                   // 接触完了はグレーアウト（背景のみ、文字は通常色）
@@ -249,23 +249,23 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                   return (
                     <div
                       key={`${item.person.id}-${item.type}-${idx}`}
-                      className={`text-[10px] sm:text-xs px-1 py-0.5 rounded border-l-2 ${colorClass}`}
+                      className={`text-[8px] sm:text-[10px] px-0.5 py-0.5 rounded border-l-2 ${colorClass}`}
                       title={tooltipText}
                     >
                       <div className="truncate">
-                        {statusIcon} {item.person.name.slice(0, 6)}
+                        <span className="text-[10px] sm:text-xs">{statusIcon}</span> {item.person.name.slice(0, 8)}
                         {isContact && item.contact?.note && (
-                          <span className="ml-1 text-[9px] sm:text-[10px]">
-                            {item.contact.note.slice(0, 8)}
+                          <span className="ml-0.5 text-[7px] sm:text-[9px]">
+                            {item.contact.note.slice(0, 6)}
                           </span>
                         )}
                       </div>
                     </div>
                   );
                 })}
-                {items.length > 3 && (
-                  <div className="text-xs text-gray-500 font-semibold">
-                    +{items.length - 3}件
+                {items.length > 4 && (
+                  <div className="text-[8px] sm:text-[10px] text-gray-500 font-semibold pl-0.5">
+                    +{items.length - 4}件
                   </div>
                 )}
               </div>
