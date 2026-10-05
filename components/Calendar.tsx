@@ -149,27 +149,27 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4">
       {/* ヘッダー */}
-      <div className="flex justify-between items-center mb-3 sm:mb-4">
+      <div className="flex justify-between items-center mb-3 sm:mb-4 gap-1">
         <button
           onClick={previousMonth}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-xs sm:text-sm whitespace-nowrap"
         >
           ← 前月
         </button>
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <h2 className="text-base sm:text-2xl font-bold whitespace-nowrap">
             {currentDate.getFullYear()}年 {currentDate.getMonth() + 1}月
           </h2>
           <button
             onClick={goToToday}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+            className="px-2 py-1 text-xs sm:text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition whitespace-nowrap"
           >
             今日
           </button>
         </div>
         <button
           onClick={nextMonth}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
+          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-xs sm:text-sm whitespace-nowrap"
         >
           次月 →
         </button>

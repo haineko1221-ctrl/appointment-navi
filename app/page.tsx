@@ -99,12 +99,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">
+      <div className="flex justify-between items-center gap-2">
+        <h1 className="text-xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">
           📅 ダッシュボード
         </h1>
         <Link href="/people/new">
-          <Button variant="primary">+ 人物を登録</Button>
+          <Button variant="primary" size="sm" className="whitespace-nowrap text-xs sm:text-sm">+ 人物を登録</Button>
         </Link>
       </div>
 

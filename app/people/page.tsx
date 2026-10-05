@@ -89,10 +89,10 @@ export default function PeoplePage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">👥 人物一覧</h1>
+      <div className="flex justify-between items-center gap-2">
+        <h1 className="text-xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">👥 人物一覧</h1>
         <Link href="/people/new">
-          <Button variant="primary">+ 人物を登録</Button>
+          <Button variant="primary" size="sm" className="whitespace-nowrap text-xs sm:text-sm">+ 人物を登録</Button>
         </Link>
       </div>
 
@@ -113,7 +113,7 @@ export default function PeoplePage() {
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-1">
@@ -122,25 +122,7 @@ export default function PeoplePage() {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('category')}
-                  >
-                    <div className="flex items-center gap-1">
-                      カテゴリー <SortIcon columnKey="category" />
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('followInterval')}
-                  >
-                    <div className="flex items-center gap-1">
-                      間隔 <SortIcon columnKey="followInterval" />
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('lastContact')}
                   >
                     <div className="flex items-center gap-1">
@@ -149,7 +131,7 @@ export default function PeoplePage() {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('nextRecommended')}
                   >
                     <div className="flex items-center gap-1">
@@ -158,14 +140,32 @@ export default function PeoplePage() {
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('followInterval')}
+                  >
+                    <div className="flex items-center gap-1">
+                      間隔 <SortIcon columnKey="followInterval" />
+                    </div>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('category')}
+                  >
+                    <div className="flex items-center gap-1">
+                      カテゴリー <SortIcon columnKey="category" />
+                    </div>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('overdue')}
                   >
                     <div className="flex items-center gap-1">
                       状態 <SortIcon columnKey="overdue" />
                     </div>
                   </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     操作
                   </th>
                 </tr>
@@ -173,48 +173,49 @@ export default function PeoplePage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {getSortedPeople().map(({ person, reminder }) => (
                   <tr key={person.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link href={`/people/${person.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <Link href={`/people/${person.id}`} className="text-blue-600 hover:text-blue-800 font-medium text-sm">
                         {person.name}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {person.category === 'follow' ? '👥 フォロー' : '📅 アポイント'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {person.followInterval ? `${person.followInterval}日` : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-500">
                       {reminder?.lastContact ? formatDate(reminder.lastContact.contactDate) : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-500">
                       {reminder ? formatDate(reminder.nextRecommendedDate) : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-500">
+                      {person.followInterval ? `${person.followInterval}日` : '-'}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-500">
+                      {person.category === 'follow' ? '👥 フォロー' : '📅 アポイント'}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
                       {reminder?.isOverdue ? (
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        <span className="px-2 inline-flex text-xs leading-4 font-semibold rounded-full bg-red-100 text-red-800">
                           🔴 {reminder.daysOverdue}日遅れ
                         </span>
                       ) : reminder ? (
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        <span className="px-2 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
                           ✓ 正常
                         </span>
                       ) : (
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">
-                          - リマインドなし
+                        <span className="px-2 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-600">
+                          - なし
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex gap-2 justify-end">
+                    <td className="px-3 py-2 whitespace-nowrap text-right text-xs font-medium">
+                      <div className="flex gap-1 justify-end">
                         <Link href={`/people/${person.id}`}>
-                          <Button variant="primary" size="sm">
+                          <Button variant="primary" size="sm" className="text-xs">
                             詳細
                           </Button>
                         </Link>
                         <Button
                           variant="danger"
                           size="sm"
+                          className="text-xs"
                           onClick={() => handleDelete(person.id, person.name)}
                         >
                           削除
