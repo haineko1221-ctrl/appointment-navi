@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Reminder, PersonCategory, CATEGORY_LABELS } from '@/types';
-import { getAllPeople, saveContact, deleteContact } from '@/lib/storage';
+import { getAllPeople, saveContact, deleteContact, savePerson, getPersonById } from '@/lib/storage';
 import { getTodayReminders, getOverdueReminders, formatDate } from '@/lib/reminderCalculator';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
@@ -60,6 +60,17 @@ export default function Dashboard() {
       note: contactNote.trim() || undefined,
       createdAt: new Date(),
     });
+
+    // 新規アポ予定だった場合、scheduledDateをクリア
+    const person = getPersonById(contactFormPersonId);
+    if (person?.scheduledDate) {
+      savePerson({
+        ...person,
+        scheduledDate: undefined,
+        updatedAt: new Date(),
+      });
+    }
+
     setContactNote('');
     setContactDate('');
     setContactFormPersonId(null);

@@ -35,16 +35,35 @@ export function formatDate(date: Date): string {
 // ===================================
 
 export function calculateReminder(person: Person): Reminder | null {
+  const lastContact = getLastContact(person.id);
+  const today = getToday();
+
+  // 新規アポ予定の場合（scheduledDateが設定されている）
+  if (person.scheduledDate && !lastContact) {
+    const scheduledDate = new Date(person.scheduledDate);
+    // 予定日の1日前がリマインド日
+    const reminderDate = addDays(scheduledDate, -1);
+    const daysUntilScheduled = daysBetween(today, scheduledDate);
+    const isOverdue = scheduledDate.getTime() < today.getTime(); // 予定日を過ぎている
+
+    return {
+      person,
+      lastContact: null,
+      nextRecommendedDate: reminderDate,
+      daysElapsed: 0,
+      isOverdue,
+      daysOverdue: isOverdue ? daysBetween(scheduledDate, today) : 0,
+      isScheduled: true,
+    };
+  }
+
   // フォロー間隔が設定されていない場合はリマインダーなし
   if (person.followInterval === null) {
     return null;
   }
 
-  const lastContact = getLastContact(person.id);
-  const today = getToday();
-
   if (!lastContact) {
-    // 接触履歴がない場合は今日が推奨日
+    // 接触履歴がない＆予定日もない場合は今日が推奨日
     return {
       person,
       lastContact: null,
@@ -52,9 +71,11 @@ export function calculateReminder(person: Person): Reminder | null {
       daysElapsed: 0,
       isOverdue: true,
       daysOverdue: 0,
+      isScheduled: false,
     };
   }
 
+  // 定期フォローの場合（接触履歴あり）
   const lastContactDate = new Date(lastContact.contactDate);
   const nextRecommendedDate = addDays(lastContactDate, person.followInterval);
   const daysElapsed = daysBetween(lastContactDate, today);
@@ -68,6 +89,7 @@ export function calculateReminder(person: Person): Reminder | null {
     daysElapsed,
     isOverdue,
     daysOverdue: Math.max(0, daysOverdue),
+    isScheduled: false,
   };
 }
 

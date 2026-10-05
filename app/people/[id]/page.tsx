@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Person, Contact } from '@/types';
-import { getPersonById, getContactsByPersonId, saveContact, deleteContact } from '@/lib/storage';
+import { getPersonById, getContactsByPersonId, saveContact, deleteContact, savePerson } from '@/lib/storage';
 import { calculateReminder, formatDate } from '@/lib/reminderCalculator';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
@@ -61,6 +61,16 @@ export default function PersonDetailPage() {
       note: contactNote.trim() || undefined,
       createdAt: new Date(),
     });
+
+    // 新規アポ予定だった場合、scheduledDateをクリア
+    if (person?.scheduledDate) {
+      savePerson({
+        ...person,
+        scheduledDate: undefined,
+        updatedAt: new Date(),
+      });
+    }
+
     setContactNote('');
     setContactDate('');
     setShowContactForm(false);

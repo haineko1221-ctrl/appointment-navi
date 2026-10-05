@@ -94,6 +94,21 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
         });
       }
 
+      // 新規アポ予定日当日もチェック
+      if (reminder?.isScheduled && person.scheduledDate && isSameDay(person.scheduledDate, date)) {
+        // リマインド日と予定日が同じ場合は重複しないようにする
+        const alreadyAdded = items.some(item => item.person.id === person.id && item.type === 'reminder');
+        if (!alreadyAdded) {
+          items.push({
+            person,
+            date: person.scheduledDate,
+            type: 'reminder',
+            reminder,
+            isOverdue: reminder.isOverdue,
+          });
+        }
+      }
+
       // 接触履歴をチェック
       const personContacts = allContacts.filter(c => c.personId === person.id);
       personContacts.forEach(contact => {

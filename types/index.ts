@@ -26,6 +26,7 @@ export type Person = {
   name: string;
   category: PersonCategory; // カテゴリー
   followInterval: number | null; // フォロー間隔（日数）nullの場合はリマインドなし
+  scheduledDate?: Date; // 新規アポ予定日（未来の日付の場合）
   memo?: string; // 個人情報メモ
   createdAt: Date;
   updatedAt: Date;
@@ -54,4 +55,5 @@ export type Reminder = {
   daysElapsed: number; // 経過日数
   isOverdue: boolean; // 遅延しているか
   daysOverdue: number; // 遅延日数
+  isScheduled: boolean; // 新規アポ予定かどうか（まだ会っていない）
 };

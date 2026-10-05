@@ -57,11 +57,19 @@ export default function NewPersonPage() {
     }
 
     const personId = uuidv4();
+    const contactDate = new Date(formData.initialContactDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    contactDate.setHours(0, 0, 0, 0);
+
+    const isFutureDate = contactDate.getTime() > today.getTime();
+
     const person: Person = {
       id: personId,
       name: formData.name,
       category: formData.category,
       followInterval: followIntervalValue,
+      scheduledDate: isFutureDate ? contactDate : undefined,
       memo: formData.memo,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -69,14 +77,15 @@ export default function NewPersonPage() {
 
     savePerson(person);
 
-    // 初回接触日を履歴として保存
-    const contactDate = new Date(formData.initialContactDate);
-    saveContact({
-      id: uuidv4(),
-      personId: personId,
-      contactDate: contactDate,
-      createdAt: new Date(),
-    });
+    // 過去または今日の日付の場合のみ、接触履歴として保存
+    if (!isFutureDate) {
+      saveContact({
+        id: uuidv4(),
+        personId: personId,
+        contactDate: contactDate,
+        createdAt: new Date(),
+      });
+    }
 
     router.push('/people');
   };
@@ -142,7 +151,7 @@ export default function NewPersonPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              初回接触日 <span className="text-red-500">*</span>
+              初回接触日 / アポ予定日 <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -154,7 +163,7 @@ export default function NewPersonPage() {
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              最初に接触した日（過去の日付も設定可能）
+              過去: 接触した日 / 未来: 新規アポ予定日（予定日の1日前にリマインド）
             </p>
           </div>
 
