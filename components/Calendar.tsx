@@ -19,17 +19,11 @@ export type CalendarItem = {
   isOverdue?: boolean;
 };
 
-// 人物ごとに色を割り当て
-const PERSON_COLORS = [
-  'bg-blue-100 border-blue-500 text-blue-900',
-  'bg-green-100 border-green-500 text-green-900',
-  'bg-purple-100 border-purple-500 text-purple-900',
-  'bg-pink-100 border-pink-500 text-pink-900',
-  'bg-yellow-100 border-yellow-500 text-yellow-900',
-  'bg-orange-100 border-orange-500 text-orange-900',
-  'bg-red-100 border-red-500 text-red-900',
-  'bg-indigo-100 border-indigo-500 text-indigo-900',
-];
+// カテゴリーごとに色を割り当て
+const CATEGORY_COLORS = {
+  follow: 'bg-pink-100 border-pink-400 text-pink-900',
+  appointment: 'bg-cyan-100 border-cyan-400 text-cyan-900',
+};
 
 export default function Calendar({ people, onDateClick }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -125,10 +119,9 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       .map(item => item.reminder!);
   };
 
-  // 人物IDから色を取得
-  const getPersonColor = (personId: string): string => {
-    const personIndex = people.findIndex((p) => p.id === personId);
-    return PERSON_COLORS[personIndex % PERSON_COLORS.length];
+  // カテゴリーから色を取得
+  const getCategoryColor = (category: 'follow' | 'appointment'): string => {
+    return CATEGORY_COLORS[category];
   };
 
   // 前月へ
@@ -154,9 +147,9 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4">
       {/* ヘッダー */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-3 sm:mb-4">
         <button
           onClick={previousMonth}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
@@ -231,16 +224,8 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                 {items.slice(0, 4).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
-                  // 接触完了はグレーアウト（背景のみ、文字は通常色）
-                  const colorClass = isContact
-                    ? 'bg-gray-200 border-gray-400 text-gray-900'
-                    : getPersonColor(item.person.id);
-
-                  const statusIcon = isContact
-                    ? '✅'
-                    : item.isOverdue
-                    ? '🔴'
-                    : '🔵';
+                  // カテゴリーで色分け（接触完了も同じ色）
+                  const colorClass = getCategoryColor(item.person.category);
 
                   const tooltipText = isContact
                     ? `${item.person.name} - 接触完了: ${formatDate(item.contact!.contactDate)}${item.contact!.note ? `\n${item.contact!.note}` : ''}`
@@ -253,10 +238,10 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                       title={tooltipText}
                     >
                       <div className="truncate">
-                        <span className="text-[10px] sm:text-xs">{statusIcon}</span> {item.person.name.slice(0, 8)}
+                        {item.person.name.slice(0, 8)}
                         {isContact && item.contact?.note && (
                           <span className="ml-0.5 text-[7px] sm:text-[9px]">
-                            {item.contact.note.slice(0, 6)}
+                            ({item.contact.note.slice(0, 6)})
                           </span>
                         )}
                       </div>
@@ -275,11 +260,14 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       </div>
 
       {/* 凡例 */}
-      <div className="mt-6 flex flex-wrap gap-4 text-sm">
+      <div className="mt-4 flex flex-wrap gap-3 text-xs sm:text-sm">
         <div className="flex items-center gap-2">
-          <span>✓ 完了</span>
-          <span>🔵 予定</span>
-          <span>🔴 遅延</span>
+          <div className="w-4 h-4 bg-pink-100 border-l-2 border-pink-400 rounded"></div>
+          <span>フォロー</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-cyan-100 border-l-2 border-cyan-400 rounded"></div>
+          <span>アポイント</span>
         </div>
       </div>
     </div>
