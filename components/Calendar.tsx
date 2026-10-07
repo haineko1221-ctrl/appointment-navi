@@ -83,25 +83,23 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
     people.forEach((person) => {
       const reminder = calculateReminder(person);
 
-      // 次回推奨日をチェック（リマインダーがある場合のみ）
-      if (reminder && isSameDay(reminder.nextRecommendedDate, date)) {
-        items.push({
-          person,
-          date: reminder.nextRecommendedDate,
-          type: 'reminder',
-          reminder,
-          isOverdue: reminder.isOverdue,
-        });
-      }
-
-      // 新規アポ予定日当日もチェック
-      if (reminder?.isScheduled && person.scheduledDate && isSameDay(person.scheduledDate, date)) {
-        // リマインド日と予定日が同じ場合は重複しないようにする
-        const alreadyAdded = items.some(item => item.person.id === person.id && item.type === 'reminder');
-        if (!alreadyAdded) {
+      // 新規アポ予定の場合、予定日当日のみカレンダーに表示（1日前は表示しない）
+      if (reminder?.isScheduled && person.scheduledDate) {
+        if (isSameDay(person.scheduledDate, date)) {
           items.push({
             person,
             date: person.scheduledDate,
+            type: 'reminder',
+            reminder,
+            isOverdue: reminder.isOverdue,
+          });
+        }
+      } else if (reminder && !reminder.isScheduled) {
+        // 定期フォローの場合は次回推奨日に表示
+        if (isSameDay(reminder.nextRecommendedDate, date)) {
+          items.push({
+            person,
+            date: reminder.nextRecommendedDate,
             type: 'reminder',
             reminder,
             isOverdue: reminder.isOverdue,
