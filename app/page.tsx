@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Reminder, PersonCategory, CATEGORY_LABELS } from '@/types';
-import { getAllPeople, saveContact, deleteContact, savePerson, getPersonById } from '@/lib/storage';
+import { getAllPeople, saveContact, deleteContact, savePerson, getPersonById, getContactsByPersonId } from '@/lib/storage';
 import { getTodayReminders, getOverdueReminders, formatDate } from '@/lib/reminderCalculator';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
@@ -96,11 +96,24 @@ export default function Dashboard() {
     loadReminders();
   };
 
-  const handleDeleteContact = (contactId: string) => {
-    deleteContact(contactId);
-    loadReminders();
-    // モーダル内の表示を更新
-    setSelectedAllItems(prev => prev.filter(item => item.contact?.id !== contactId));
+  const handleDeleteContact = (contactId: string, personId: string) => {
+    // その人物の全接触履歴を取得して確認
+    const contacts = getContactsByPersonId(personId);
+
+    if (contacts.length > 0) {
+      const oldestContact = contacts[contacts.length - 1];
+      if (contactId === oldestContact.id) {
+        alert('最初の接触履歴は削除できません');
+        return;
+      }
+    }
+
+    if (confirm('この接触履歴を削除しますか？')) {
+      deleteContact(contactId);
+      loadReminders();
+      // モーダル内の表示を更新
+      setSelectedAllItems(prev => prev.filter(item => item.contact?.id !== contactId));
+    }
   };
 
   const allPeople = getAllPeople();
@@ -111,7 +124,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center gap-2">
-        <h1 className="text-xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">
+        <h1 className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
           📅 ダッシュボード
         </h1>
         <Link href="/people/new">
@@ -126,7 +139,7 @@ export default function Dashboard() {
           className={`px-4 py-2 rounded-lg font-medium transition ${
             selectedCategory === 'all'
               ? 'bg-blue-500 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
         >
           📋 全て
@@ -138,7 +151,7 @@ export default function Dashboard() {
             className={`px-4 py-2 rounded-lg font-medium transition ${
               selectedCategory === category
                 ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             {CATEGORY_LABELS[category].emoji} {CATEGORY_LABELS[category].label}
@@ -147,12 +160,14 @@ export default function Dashboard() {
       </div>
 
       {/* カレンダー表示 */}
-      <Calendar people={filteredPeople} onDateClick={handleDateClick} />
+      <div className="-mx-4 sm:mx-0">
+        <Calendar people={filteredPeople} onDateClick={handleDateClick} />
+      </div>
 
       {todayReminders.length === 0 && overdueReminders.length === 0 ? (
         <Card>
           <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               今日のリマインドはありません。
             </p>
             <Link href="/people/new">
@@ -168,27 +183,27 @@ export default function Dashboard() {
                 {overdueReminders.map((reminder) => (
                   <div
                     key={reminder.person.id}
-                    className="bg-red-50 border border-red-200 rounded-lg p-4"
+                    className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {reminder.person.name}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                           設定間隔: {reminder.person.followInterval ? `${reminder.person.followInterval}日ごと` : 'リマインドなし'}
                         </p>
                         {reminder.lastContact ? (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             最終接触: {formatDate(reminder.lastContact.contactDate)}
                             　（{reminder.daysElapsed}日経過）
                           </p>
                         ) : (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             まだ接触履歴がありません
                           </p>
                         )}
-                        <p className="text-sm text-red-600 font-semibold mt-1">
+                        <p className="text-sm text-red-600 dark:text-red-400 font-semibold mt-1">
                           🔴 {reminder.daysOverdue}日遅れています
                         </p>
                       </div>
@@ -212,27 +227,27 @@ export default function Dashboard() {
                 {todayReminders.map((reminder) => (
                   <div
                     key={reminder.person.id}
-                    className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+                    className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                           {reminder.person.name}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                           設定間隔: {reminder.person.followInterval ? `${reminder.person.followInterval}日ごと` : 'リマインドなし'}
                         </p>
                         {reminder.lastContact ? (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             最終接触: {formatDate(reminder.lastContact.contactDate)}
                             　（{reminder.daysElapsed}日経過）
                           </p>
                         ) : (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             まだ接触履歴がありません
                           </p>
                         )}
-                        <p className="text-sm text-blue-600 font-semibold mt-1">
+                        <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold mt-1">
                           次回推奨: {formatDate(reminder.nextRecommendedDate)}
                         </p>
                       </div>
@@ -259,23 +274,23 @@ export default function Dashboard() {
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto m-4"
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto m-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold dark:text-gray-100">
                 {formatDate(selectedDate)} の予定
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-2xl"
               >
                 ✕
               </button>
             </div>
 
             {selectedAllItems.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
                 この日の予定はありません
               </p>
             ) : (
@@ -288,10 +303,10 @@ export default function Dashboard() {
                       key={`${item.person.id}-${item.type}-${index}`}
                       className={`border rounded-lg p-4 ${
                         isContact
-                          ? 'bg-gray-50 border-gray-300 opacity-75'
+                          ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 opacity-75'
                           : item.isOverdue
-                          ? 'bg-red-50 border-red-200'
-                          : 'bg-blue-50 border-blue-200'
+                          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                          : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
                       }`}
                     >
                       <div className="flex justify-between items-start">
@@ -300,53 +315,53 @@ export default function Dashboard() {
                             <span className="text-xl">
                               {isContact ? '✓' : item.isOverdue ? '🔴' : '🔵'}
                             </span>
-                            <h3 className={`text-lg font-bold ${isContact ? 'text-gray-600' : 'text-gray-900'}`}>
-                              <Link href={`/people/${item.person.id}/edit`} className="hover:text-blue-600">
+                            <h3 className={`text-lg font-bold ${isContact ? 'text-gray-600 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              <Link href={`/people/${item.person.id}/edit`} className="hover:text-blue-600 dark:hover:text-blue-400">
                                 {item.person.name}
                               </Link>
                             </h3>
                             {isContact && (
-                              <span className="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded">
+                              <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs rounded">
                                 接触完了
                               </span>
                             )}
                           </div>
 
-                          <p className="text-sm text-gray-600 mb-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                             設定間隔: {item.person.followInterval ? `${item.person.followInterval}日ごと` : 'リマインドなし'}
                           </p>
 
                           {!isContact && item.reminder?.lastContact && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                               最終接触: {formatDate(item.reminder.lastContact.contactDate)}
                               　（{item.reminder.daysElapsed}日経過）
                             </p>
                           )}
 
                           {!isContact && !item.reminder?.lastContact && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                               まだ接触履歴がありません
                             </p>
                           )}
 
                           {item.isOverdue && !isContact && (
-                            <p className="text-sm text-red-600 font-semibold mt-1">
+                            <p className="text-sm text-red-600 dark:text-red-400 font-semibold mt-1">
                               🔴 {item.reminder!.daysOverdue}日遅れています
                             </p>
                           )}
 
                           {isContact && item.contact?.note && (
-                            <div className="mt-2 pt-2 border-t border-gray-300">
-                              <p className="text-sm font-semibold text-gray-700 mb-1">📝 アクション内容:</p>
-                              <p className="text-sm text-gray-900">
+                            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">📝 アクション内容:</p>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
                                 {item.contact.note}
                               </p>
                             </div>
                           )}
 
                           {!isContact && item.person.memo && (
-                            <div className="mt-2 pt-2 border-t border-gray-300">
-                              <p className="text-xs text-gray-600 whitespace-pre-wrap">
+                            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
                                 {item.person.memo}
                               </p>
                             </div>
@@ -358,7 +373,7 @@ export default function Dashboard() {
                             <Button
                               variant="secondary"
                               size="sm"
-                              onClick={() => handleDeleteContact(item.contact!.id)}
+                              onClick={() => handleDeleteContact(item.contact!.id, item.person.id)}
                             >
                               取り消す
                             </Button>
@@ -397,16 +412,16 @@ export default function Dashboard() {
           onClick={handleContactCancel}
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-md w-full m-4"
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full m-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-xl font-bold dark:text-gray-100">
                 接触記録
               </h2>
               <button
                 onClick={handleContactCancel}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-2xl"
               >
                 ✕
               </button>
@@ -414,30 +429,30 @@ export default function Dashboard() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   接触日
                 </label>
                 <input
                   type="date"
                   value={contactDate}
                   onChange={(e) => setContactDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   実際に接触した日（昨日なども選択可能）
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   アクション内容
                 </label>
                 <input
                   type="text"
                   value={contactNote}
                   onChange={(e) => setContactNote(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="例: 電話で連絡、LINEでメッセージ、実際に面談"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -445,7 +460,7 @@ export default function Dashboard() {
                     }
                   }}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   誰にどんなアクションをしたか記録しましょう
                 </p>
               </div>

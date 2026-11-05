@@ -80,7 +80,7 @@ export default function EditPersonPage() {
       <Card title="✏️ 人物情報編集">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               名前 <span className="text-red-500">*</span>
             </label>
             <input
@@ -89,7 +89,7 @@ export default function EditPersonPage() {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="例: 田中太郎"
               required
             />
@@ -135,7 +135,7 @@ export default function EditPersonPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               個人情報メモ
             </label>
             <textarea
@@ -143,7 +143,7 @@ export default function EditPersonPage() {
               onChange={(e) =>
                 setFormData({ ...formData, memo: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={5}
               placeholder="例: &#10;・会社: 〇〇株式会社&#10;・趣味: ゴルフ&#10;・家族構成: 妻、子供2人&#10;・最近の関心事: 副業に興味"
             />

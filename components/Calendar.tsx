@@ -19,10 +19,10 @@ export type CalendarItem = {
   isOverdue?: boolean;
 };
 
-// カテゴリーごとに色を割り当て
+// カテゴリーごとに色を割り当て（ダークモード対応）
 const CATEGORY_COLORS = {
-  follow: 'bg-pink-100 border-pink-400 text-pink-900',
-  appointment: 'bg-cyan-100 border-cyan-400 text-cyan-900',
+  follow: 'bg-pink-100 dark:bg-pink-900/40 border-pink-400 text-pink-900 dark:text-pink-100',
+  appointment: 'bg-cyan-100 dark:bg-cyan-900/40 border-cyan-400 text-cyan-900 dark:text-cyan-100',
 };
 
 export default function Calendar({ people, onDateClick }: CalendarProps) {
@@ -83,8 +83,13 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
     people.forEach((person) => {
       const reminder = calculateReminder(person);
 
+      // 接触履歴をチェック
+      const personContacts = allContacts.filter(c => c.personId === person.id);
+      const hasContactOnThisDate = personContacts.some(contact => isSameDay(contact.contactDate, date));
+
       // 新規アポ予定の場合、予定日当日のみカレンダーに表示（1日前は表示しない）
-      if (reminder?.isScheduled && person.scheduledDate) {
+      // ただし、その日に接触履歴がある場合はリマインダーを表示しない
+      if (reminder?.isScheduled && person.scheduledDate && !hasContactOnThisDate) {
         if (isSameDay(person.scheduledDate, date)) {
           items.push({
             person,
@@ -94,8 +99,9 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
             isOverdue: reminder.isOverdue,
           });
         }
-      } else if (reminder && !reminder.isScheduled) {
+      } else if (reminder && !reminder.isScheduled && !hasContactOnThisDate) {
         // 定期フォローの場合は次回推奨日に表示
+        // ただし、その日に接触履歴がある場合はリマインダーを表示しない
         if (isSameDay(reminder.nextRecommendedDate, date)) {
           items.push({
             person,
@@ -107,18 +113,20 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
         }
       }
 
-      // 接触履歴をチェック
-      const personContacts = allContacts.filter(c => c.personId === person.id);
-      personContacts.forEach(contact => {
-        if (isSameDay(contact.contactDate, date)) {
-          items.push({
-            person,
-            date: contact.contactDate,
-            type: 'contact',
-            contact,
-          });
-        }
-      });
+      // 接触履歴を追加（同じ日の同じ人物は1回だけ表示）
+      const contactsOnThisDate = personContacts.filter(contact => isSameDay(contact.contactDate, date));
+      if (contactsOnThisDate.length > 0) {
+        // 最新の接触履歴のみを表示
+        const latestContact = contactsOnThisDate.reduce((latest, current) =>
+          current.createdAt > latest.createdAt ? current : latest
+        );
+        items.push({
+          person,
+          date: latestContact.contactDate,
+          type: 'contact',
+          contact: latestContact,
+        });
+      }
     });
 
     return items;
@@ -160,17 +168,17 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-2 sm:p-4">
+    <div className="bg-white dark:bg-gray-800 sm:rounded-lg shadow-lg p-1 sm:p-4">
       {/* ヘッダー */}
       <div className="flex justify-between items-center mb-3 sm:mb-4 gap-1">
         <button
           onClick={previousMonth}
-          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-xs sm:text-sm whitespace-nowrap"
+          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition text-xs sm:text-sm whitespace-nowrap"
         >
           ← 前月
         </button>
         <div className="flex items-center gap-2 sm:gap-4">
-          <h2 className="text-base sm:text-2xl font-bold whitespace-nowrap">
+          <h2 className="text-base sm:text-2xl font-bold whitespace-nowrap dark:text-gray-100">
             {currentDate.getFullYear()}年 {currentDate.getMonth() + 1}月
           </h2>
           <button
@@ -182,19 +190,19 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
         </div>
         <button
           onClick={nextMonth}
-          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-xs sm:text-sm whitespace-nowrap"
+          className="px-2 py-1 sm:px-3 sm:py-2 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition text-xs sm:text-sm whitespace-nowrap"
         >
           次月 →
         </button>
       </div>
 
       {/* 曜日ヘッダー */}
-      <div className="grid grid-cols-7 gap-0 mb-1">
+      <div className="grid grid-cols-7 gap-0 mb-0.5 sm:mb-1">
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`text-center text-xs sm:text-sm font-bold py-1 border-b border-gray-200 ${
-              index === 0 ? 'text-red-600' : index === 6 ? 'text-blue-600' : 'text-gray-700'
+            className={`text-center text-xs sm:text-sm font-bold py-1 border-b border-gray-200 dark:border-gray-600 ${
+              index === 0 ? 'text-red-600 dark:text-red-400' : index === 6 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
             }`}
           >
             {day}
@@ -206,7 +214,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       <div className="grid grid-cols-7 gap-0">
         {calendarDays.map((date, index) => {
           if (!date) {
-            return <div key={`empty-${index}`} className="h-20 sm:h-24 bg-gray-50 border border-gray-200" />;
+            return <div key={`empty-${index}`} className="h-20 sm:h-24 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700" />;
           }
 
           const items = getItemsForDate(date);
@@ -217,16 +225,16 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
             <div
               key={index}
               onClick={() => onDateClick && onDateClick(date, reminders, items)}
-              className={`h-20 sm:h-24 border border-gray-200 p-0.5 cursor-pointer transition hover:bg-gray-50 ${
+              className={`h-20 sm:h-24 border border-gray-200 dark:border-gray-700 p-0.5 cursor-pointer transition hover:bg-gray-50 dark:hover:bg-gray-700 ${
                 isToday
-                  ? 'bg-blue-50'
-                  : 'bg-white'
+                  ? 'bg-blue-50 dark:bg-blue-900/30'
+                  : 'bg-white dark:bg-gray-800'
               }`}
             >
               {/* 日付 */}
               <div
                 className={`text-xs text-right pr-1 mb-0.5 ${
-                  isToday ? 'text-blue-600 font-bold' : 'text-gray-600'
+                  isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 dark:text-gray-400'
                 }`}
               >
                 {date.getDate()}
@@ -237,10 +245,10 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                 {items.slice(0, 4).map((item, idx) => {
                   const isContact = item.type === 'contact';
 
-                  // リマインドは黄色、接触完了はカテゴリー色
+                  // リマインドは黄色、接触完了はカテゴリー色（ダークモード対応）
                   const colorClass = isContact
                     ? getCategoryColor(item.person.category)
-                    : 'bg-yellow-100 border-yellow-400 text-yellow-900';
+                    : 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-400 text-yellow-900 dark:text-yellow-100';
 
                   const tooltipText = isContact
                     ? `${item.person.name} - 接触完了: ${formatDate(item.contact!.contactDate)}${item.contact!.note ? `\n${item.contact!.note}` : ''}`
@@ -264,7 +272,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
                   );
                 })}
                 {items.length > 4 && (
-                  <div className="text-[8px] sm:text-[10px] text-gray-500 font-semibold pl-0.5">
+                  <div className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400 font-semibold pl-0.5">
                     +{items.length - 4}件
                   </div>
                 )}
@@ -275,7 +283,7 @@ export default function Calendar({ people, onDateClick }: CalendarProps) {
       </div>
 
       {/* 凡例 */}
-      <div className="mt-4 flex flex-wrap gap-3 text-xs sm:text-sm">
+      <div className="mt-2 sm:mt-4 flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm px-1 sm:px-0 dark:text-gray-300">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-yellow-100 border-l-2 border-yellow-400 rounded"></div>
           <span>予定</span>

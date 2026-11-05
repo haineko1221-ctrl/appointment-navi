@@ -57,3 +57,18 @@ export type Reminder = {
   daysOverdue: number; // 遅延日数
   isScheduled: boolean; // 新規アポ予定かどうか（まだ会っていない）
 };
+
+// ===================================
+// 画像（フェーズ2で使用）
+// ===================================
+
+export type PersonImage = {
+  id: string;
+  personId: string;
+  storagePath: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  ocrText?: string;
+  createdAt: Date;
+};

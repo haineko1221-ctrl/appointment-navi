@@ -84,14 +84,25 @@ export default function PersonDetailPage() {
   };
 
   const handleDeleteContact = (contactId: string) => {
-    deleteContact(contactId);
-    loadData();
+    // 最初の接触履歴（最も古い接触履歴）は削除できない
+    if (contacts.length > 0) {
+      const oldestContact = contacts[contacts.length - 1];
+      if (contactId === oldestContact.id) {
+        alert('最初の接触履歴は削除できません');
+        return;
+      }
+    }
+
+    if (confirm('この接触履歴を削除しますか？')) {
+      deleteContact(contactId);
+      loadData();
+    }
   };
 
   if (!person) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">読み込み中...</p>
+        <p className="text-gray-500 dark:text-gray-400">読み込み中...</p>
       </div>
     );
   }
@@ -101,7 +112,7 @@ export default function PersonDetailPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">{person.name}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{person.name}</h1>
         <div className="flex gap-2">
           <Link href={`/people/${person.id}/edit`}>
             <Button variant="primary">
@@ -117,21 +128,21 @@ export default function PersonDetailPage() {
       <Card title="📋 基本情報">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-600">カテゴリー</p>
-            <p className="font-semibold">
+            <p className="text-gray-600 dark:text-gray-400">カテゴリー</p>
+            <p className="font-semibold dark:text-gray-100">
               {person.category === 'follow' ? '👥 フォロー' : '📅 アポイント'}
             </p>
           </div>
           <div>
-            <p className="text-gray-600">フォロー間隔</p>
-            <p className="font-semibold">
+            <p className="text-gray-600 dark:text-gray-400">フォロー間隔</p>
+            <p className="font-semibold dark:text-gray-100">
               {person.followInterval ? `${person.followInterval}日ごと` : 'リマインドなし'}
             </p>
           </div>
           {person.memo && (
             <div className="col-span-2">
-              <p className="text-gray-600 mb-2">個人情報メモ</p>
-              <p className="font-semibold whitespace-pre-wrap">{person.memo}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">個人情報メモ</p>
+              <p className="font-semibold dark:text-gray-100 whitespace-pre-wrap">{person.memo}</p>
             </div>
           )}
         </div>
@@ -139,25 +150,25 @@ export default function PersonDetailPage() {
 
       <Card title="🔔 リマインド状況">
         {!reminder ? (
-          <div className="rounded-lg p-4 bg-gray-50 border border-gray-200">
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               この人物はリマインド設定がありません（スケジュール帳モード）
             </p>
           </div>
         ) : (
           <div className={`rounded-lg p-4 ${
             reminder.isOverdue
-              ? 'bg-red-50 border border-red-200'
-              : 'bg-blue-50 border border-blue-200'
+              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+              : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
           }`}>
             {reminder.lastContact ? (
               <>
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                   最終接触: {formatDate(reminder.lastContact.contactDate)}
                   　（{reminder.daysElapsed}日経過）
                 </p>
                 <p className={`text-sm font-semibold ${
-                  reminder.isOverdue ? 'text-red-600' : 'text-blue-600'
+                  reminder.isOverdue ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
                 }`}>
                   {reminder.isOverdue
                     ? `🔴 ${reminder.daysOverdue}日遅れています`
@@ -166,7 +177,7 @@ export default function PersonDetailPage() {
                 </p>
               </>
             ) : (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 まだ接触履歴がありません
               </p>
             )}
@@ -195,29 +206,29 @@ export default function PersonDetailPage() {
                 return (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         接触日
                       </label>
                       <input
                         type="date"
                         value={contactDate}
                         onChange={(e) => setContactDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         実際に接触した日（昨日なども選択可能）
                       </p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         アクション内容
                       </label>
                       <input
                         type="text"
                         value={contactNote}
                         onChange={(e) => setContactNote(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="例: 電話で連絡、LINEでメッセージ、実際に面談"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -225,7 +236,7 @@ export default function PersonDetailPage() {
                           }
                         }}
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         誰にどんなアクションをしたか記録しましょう
                       </p>
                     </div>
@@ -252,36 +263,41 @@ export default function PersonDetailPage() {
 
       <Card title="📝 接触履歴">
         {contacts.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">
             接触履歴がありません
           </p>
         ) : (
           <div className="space-y-3">
-            {contacts.map((contact, index) => (
-              <div
-                key={contact.id}
-                className="border-l-4 border-blue-500 pl-4 py-2 flex justify-between items-start"
-              >
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {formatDate(contact.contactDate)}
-                  </p>
-                  {contact.note && (
-                    <p className="text-sm text-gray-600 mt-1">{contact.note}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mt-1">
-                    {index === 0 ? '最新' : `${index + 1}回目`}
-                  </p>
-                </div>
-                <button
-                  onClick={() => handleDeleteContact(contact.id)}
-                  className="ml-4 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition"
-                  title="取り消す"
+            {contacts.map((contact, index) => {
+              const isFirstContact = index === contacts.length - 1;
+              return (
+                <div
+                  key={contact.id}
+                  className="border-l-4 border-blue-500 dark:border-blue-400 pl-4 py-2 flex justify-between items-start"
                 >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {formatDate(contact.contactDate)}
+                    </p>
+                    {contact.note && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{contact.note}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      {index === 0 ? '最新' : isFirstContact ? '最初の接触' : `${index + 1}回目`}
+                    </p>
+                  </div>
+                  {!isFirstContact && (
+                    <button
+                      onClick={() => handleDeleteContact(contact.id)}
+                      className="ml-4 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition"
+                      title="取り消す"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </Card>
